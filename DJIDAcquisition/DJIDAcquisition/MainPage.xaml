@@ -1,0 +1,40 @@
+﻿<Page
+    x:Class="Pavlo.DJIDAcquisition.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    
+    xmlns:vm="using:Pavlo.DJIDAcquisition.VM"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.DataContext>
+        <vm:ViewModel/>
+    </Page.DataContext>
+    <Border BorderBrush="Green" BorderThickness="3">
+        <StackPanel Orientation="Vertical">
+            <Border BorderBrush="Red" BorderThickness="3">
+                <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="150">
+                    <Button x:Name="btnConnect">Connect</Button>
+                    <TextBlock x:Name="lblConnectionStatus" Text="{Binding Path=MSG, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                </VariableSizedWrapGrid>
+            </Border>
+            <Border BorderBrush="Blue" BorderThickness="3">
+                <VariableSizedWrapGrid Orientation="Horizontal">
+                    <Button x:Name="btnStartRecieving">Start recieving</Button>
+                    <Button x:Name="btnStopRecieving">Stop recieving</Button>
+                </VariableSizedWrapGrid>
+            </Border>
+            <Border BorderBrush="Yellow" BorderThickness="3">
+            <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=RecordList}" MaxHeight="400">
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTextColumn Header="#" Binding="{Binding ID}"/>
+                    <controls:DataGridTextColumn Header="Time" Binding="{Binding Date}"/>
+                    <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}"/>
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
+            </Border>
+        </StackPanel>
+    </Border>
+</Page>
