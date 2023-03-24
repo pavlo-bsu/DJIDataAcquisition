@@ -99,7 +99,7 @@ namespace Pavlo.DJIDAcquisition.VM
             // https://stackoverflow.com/questions/21720638/using-bindingoperations-enablecollectionsynchronization
             recordListLock = new object();
 
-            DJIRecord record = new DJIRecord() { ID = 0, Description = "starting", Date= System.DateTime.Now };
+            DJIRecord record = new DJIRecord() { ID = 0, Description = "starting", Date= System.DateTime.Now, Type="fakeEvent" };
             RecordList.Add(record);
         }
 
@@ -217,8 +217,8 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ComponentHandingPage_VelocityChanged(object sender, Velocity3D? value)
         {
-            string tmpDescroption = $"VelocityChanged. Total value={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}: v_x={value.Value.x.ToString()}; v_y={value.Value.y.ToString()}; v_z={value.Value.z.ToString()};";
-            DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now };
+            string tmpDescroption = $"{value.Value.x}, {value.Value.y}, {value.Value.z}. Total value={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}.";
+            DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "VelocityChanged" };
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
