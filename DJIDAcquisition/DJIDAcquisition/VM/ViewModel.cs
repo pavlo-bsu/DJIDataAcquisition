@@ -9,6 +9,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using DJI.WindowsSDK;
 using Pavlo.DJIDAcquisition.Model;
+using Windows.Storage;
+using System.IO;
 
 namespace Pavlo.DJIDAcquisition.VM
 {
@@ -108,11 +110,29 @@ namespace Pavlo.DJIDAcquisition.VM
         /// </summary>
         public void ConnectCmdAction()
         {
-            //string appDJIID = System.IO.File.ReadAllText(@"d:\k.txt");
-
             DJISDKManager.Instance.SDKRegistrationStateChanged += Instance_SDKRegistrationEvent;
 
-            DJISDKManager.Instance.RegisterApp("ID!!!");
+            //get DJI ID from the file 
+            var t = Task.Factory.StartNew(() => GetDJIKeyAsync().GetAwaiter().GetResult());
+            string id = t.GetAwaiter().GetResult();
+
+            //register the app
+            DJISDKManager.Instance.RegisterApp(id);
+        }
+
+        /// <summary>
+        /// Get DJI key from file embedded into the project
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GetDJIKeyAsync()
+        {
+            var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///DJIkey.txt"));
+            using (var inputStream = await file.OpenReadAsync())
+            using (var classicFS = inputStream.AsStreamForRead())
+            using (var classicSR = new StreamReader(classicFS,Encoding.ASCII))
+            {
+                return await classicSR.ReadLineAsync();
+            }
         }
 
         /// <summary>

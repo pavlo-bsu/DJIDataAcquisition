@@ -133,6 +133,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DJIkey.txt" />
     <Content Include="DJIWindowsSDK\DJIWindowsSDK.dll" />
     <Content Include="DJIWindowsSDK\DJIWindowsSDK.XML" />
     <Content Include="DJIWindowsSDK\DJIWindowsWrapper.dll" />
