@@ -53,5 +53,15 @@ namespace Pavlo.DJIDAcquisition.Model
 
         public DJIRecord()
         { }
+
+        /// <summary>
+        /// All the data converted to a string (json template is used)
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            string str = $"\"ID\":{ID}, \"Date\":\"{Date.Ticks}\", \"Type\":\"{Type}\", \"Description\":\"{Description}\"";
+            return str;
+        }
     }
 }

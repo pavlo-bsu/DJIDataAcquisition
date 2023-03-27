@@ -87,10 +87,17 @@ namespace Pavlo.DJIDAcquisition.VM
             private set;
         }
 
+        public StopReceivingCommand StopReceivingCommand
+        {
+            get;
+            private set;
+        }
+
         public ViewModel ()
         {
             ConnectCmd = new ConnectCommand(this);
             StartReceivingCmd = new StartReceivingCommand(this);
+            StopReceivingCommand = new StopReceivingCommand(this);
 
             droneState = DroneState.AppNotRegistered;
 
@@ -133,6 +140,30 @@ namespace Pavlo.DJIDAcquisition.VM
             {
                 return await classicSR.ReadLineAsync();
             }
+        }
+
+        public void StopRecievingAction()
+        {
+            var t = Task.Factory.StartNew(() => WriteEventsToLog());
+            t.GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// write all the events into a log file
+        /// </summary>
+        /// <returns></returns>
+        private async Task WriteEventsToLog()
+        {
+            string[] strs = new string[RecordList.Count];
+            for (int i = 0; i < strs.Length; i++)
+            {
+                strs[i] = RecordList[i].ToString();
+            }
+
+            string fileName = System.DateTime.Now.ToString("yMMdd_HHmm") + ".dji";
+            StorageFile file = await DownloadsFolder.CreateFileAsync(fileName, CreationCollisionOption.GenerateUniqueName);
+            await FileIO.WriteLinesAsync(file, strs, Windows.Storage.Streams.UnicodeEncoding.Utf8);
+            return;
         }
 
         /// <summary>
@@ -198,7 +229,7 @@ namespace Pavlo.DJIDAcquisition.VM
                 });
         }
 
-    public void StartReceivingAction()
+        public void StartReceivingAction()
         {
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
 

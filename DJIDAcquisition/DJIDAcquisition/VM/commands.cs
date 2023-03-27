@@ -50,4 +50,26 @@ namespace Pavlo.DJIDAcquisition.VM
             viewModel = vm;
         }
     }
+
+    public class StopReceivingCommand : ICommand
+    {
+        private ViewModel viewModel;
+
+        public event EventHandler CanExecuteChanged;
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public void Execute(object parameter)
+        {
+            viewModel.StopRecievingAction();
+        }
+
+        public StopReceivingCommand(ViewModel vm)
+        {
+            viewModel = vm;
+        }
+    }
 }

@@ -23,7 +23,7 @@
             <Border BorderBrush="Blue" BorderThickness="3">
                 <VariableSizedWrapGrid Orientation="Horizontal">
                     <Button x:Name="btnStartRecieving" Command="{Binding Path=StartReceivingCmd}">Start recieving</Button>
-                    <Button x:Name="btnStopRecieving">Stop recieving</Button>
+                    <Button x:Name="btnStopRecieving" Command="{Binding Path=StopReceivingCommand}">Stop recieving</Button>
                 </VariableSizedWrapGrid>
             </Border>
             <Border BorderBrush="Yellow" BorderThickness="3">
