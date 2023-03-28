@@ -44,10 +44,10 @@ namespace Pavlo.DJIDAcquisition.VM
         }
 
         private DroneState _droneState;
-        private DroneState droneState
+        public DroneState droneState
         { 
             get { return _droneState; }
-            set
+            private set
             {
                 _droneState = value;
                 switch (droneState)

@@ -15,6 +15,10 @@ namespace Pavlo.DJIDAcquisition.VM
 
         public bool CanExecute(object parameter)
         {
+            if (viewModel.droneState == DroneState.AppRegistered || viewModel.droneState == DroneState.DroneConnected)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -26,6 +30,18 @@ namespace Pavlo.DJIDAcquisition.VM
         public ConnectCommand(ViewModel vm)
         {
             viewModel = vm;
+            vm.PropertyChanged += VM_PropertyChanged;
+        }
+
+        private void VM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == ViewModel.PropertyNameMSG)
+            {//i.e. drone status may have changed
+                if (CanExecuteChanged != null)
+                {
+                    CanExecuteChanged(this, e);
+                }
+            }
         }
     }
 
