@@ -53,6 +53,12 @@ namespace Pavlo.DJIDAcquisition.VM
 
         public bool CanExecute(object parameter)
         {
+            if (viewModel.droneState!=DroneState.DroneConnected)
+                return false;
+
+            if (viewModel.IsReceiving == true)
+                return false;
+
             return true;
         }
 
@@ -64,6 +70,20 @@ namespace Pavlo.DJIDAcquisition.VM
         public StartReceivingCommand(ViewModel vm)
         {
             viewModel = vm;
+
+            viewModel.PropertyChanged += VM_PropertyChanged;
+
+        }
+
+        private void VM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == ViewModel.PropertyNameMSG || e.PropertyName==ViewModel.PropertyIsReceiving)
+            {//i.e. drone status may have changed
+                if (CanExecuteChanged != null)
+                {
+                    CanExecuteChanged(this, e);
+                }
+            }
         }
     }
 
@@ -75,7 +95,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         public bool CanExecute(object parameter)
         {
-            return true;
+            return viewModel.IsReceiving;
         }
 
         public void Execute(object parameter)
@@ -86,6 +106,19 @@ namespace Pavlo.DJIDAcquisition.VM
         public StopReceivingCommand(ViewModel vm)
         {
             viewModel = vm;
+
+            viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == ViewModel.PropertyIsReceiving)
+            {//i.e. app start (finish) receiving data from the drone
+                if (CanExecuteChanged != null)
+                {
+                    CanExecuteChanged(this, e);
+                }
+            }
         }
     }
 }

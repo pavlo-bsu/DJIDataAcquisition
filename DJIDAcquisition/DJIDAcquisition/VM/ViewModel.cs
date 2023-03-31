@@ -18,6 +18,7 @@ namespace Pavlo.DJIDAcquisition.VM
     {
         #region PropertyNames for INPC
         public static readonly string PropertyNameMSG = "MSG";
+        public static readonly string PropertyIsReceiving = "IsReceiving";
         #endregion
 
         private ObservableCollection<DJIRecord> _RecordsList;
@@ -27,9 +28,15 @@ namespace Pavlo.DJIDAcquisition.VM
             set { _RecordsList = value; }
         }
 
+        /// <summary>
+        /// lock for RecordList collection
+        /// </summary>
         private object recordListLock;
 
         private string _MSG = string.Empty;
+        /// <summary>
+        /// general message about app and drone state
+        /// </summary>
         public string MSG
         {
             get
@@ -44,6 +51,9 @@ namespace Pavlo.DJIDAcquisition.VM
         }
 
         private DroneState _droneState;
+        /// <summary>
+        /// drone / app state
+        /// </summary>
         public DroneState droneState
         { 
             get { return _droneState; }
@@ -91,6 +101,17 @@ namespace Pavlo.DJIDAcquisition.VM
         {
             get;
             private set;
+        }
+
+        private bool _IsReceiving = false;
+        public bool IsReceiving
+        {
+            get { return _IsReceiving; }
+            private set
+            {
+                _IsReceiving = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public ViewModel ()
@@ -142,10 +163,22 @@ namespace Pavlo.DJIDAcquisition.VM
             }
         }
 
+        /// <summary>
+        /// Action for StopRecievingCommand: write log to file
+        /// </summary>
         public void StopRecievingAction()
         {
-            var t = Task.Factory.StartNew(() => WriteEventsToLog());
-            t.GetAwaiter().GetResult();
+            try
+            {
+                var t = Task.Factory.StartNew(() => WriteEventsToLog());
+                t.GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            { }
+            finally
+            {
+                IsReceiving= false;
+            }
         }
 
         /// <summary>
@@ -229,9 +262,14 @@ namespace Pavlo.DJIDAcquisition.VM
                 });
         }
 
+        /// <summary>
+        /// Action for StartRecievingCommand
+        /// </summary>
         public void StartReceivingAction()
         {
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
+
+            IsReceiving=true;
 
             int id = 1;
             DJIRecord record = new DJIRecord() { ID = id++, Description = "some event (main thread)", Date = System.DateTime.Now };
@@ -297,7 +335,7 @@ namespace Pavlo.DJIDAcquisition.VM
     
 
     /// <summary>
-    /// describe states of drone 
+    /// describes states of drone 
     /// </summary>
     public enum DroneState
     {
