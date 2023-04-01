@@ -104,6 +104,9 @@ namespace Pavlo.DJIDAcquisition.VM
         }
 
         private bool _IsReceiving = false;
+        /// <summary>
+        /// show state of the app: whether app receiving data from drone or not
+        /// </summary>
         public bool IsReceiving
         {
             get { return _IsReceiving; }
@@ -128,9 +131,6 @@ namespace Pavlo.DJIDAcquisition.VM
             // https://stackoverflow.com/questions/2091988/how-do-i-update-an-observablecollection-via-a-worker-thread
             // https://stackoverflow.com/questions/21720638/using-bindingoperations-enablecollectionsynchronization
             recordListLock = new object();
-
-            DJIRecord record = new DJIRecord() { ID = 0, Description = "starting", Date= System.DateTime.Now, Type="fakeEvent" };
-            RecordList.Add(record);
         }
 
         /// <summary>
@@ -168,6 +168,10 @@ namespace Pavlo.DJIDAcquisition.VM
         /// </summary>
         public void StopRecievingAction()
         {
+            //unsubscribe from drone events
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged -= ComponentHandingPage_VelocityChanged;
+
+            //writing log to file
             try
             {
                 var t = Task.Factory.StartNew(() => WriteEventsToLog());
@@ -187,15 +191,22 @@ namespace Pavlo.DJIDAcquisition.VM
         /// <returns></returns>
         private async Task WriteEventsToLog()
         {
-            string[] strs = new string[RecordList.Count];
-            for (int i = 0; i < strs.Length; i++)
+            string[] strs = null;
+            lock (recordListLock)
             {
-                strs[i] = RecordList[i].ToString();
+                strs = new string[RecordList.Count];
+                for (int i = 0; i < strs.Length; i++)
+                {
+                    strs[i] = RecordList[i].ToString();
+                }
             }
 
-            string fileName = System.DateTime.Now.ToString("yMMdd_HHmm") + ".dji";
-            StorageFile file = await DownloadsFolder.CreateFileAsync(fileName, CreationCollisionOption.GenerateUniqueName);
-            await FileIO.WriteLinesAsync(file, strs, Windows.Storage.Streams.UnicodeEncoding.Utf8);
+            if (strs != null)
+            {
+                string fileName = System.DateTime.Now.ToString("yMMdd_HHmm") + ".dji";
+                StorageFile file = await DownloadsFolder.CreateFileAsync(fileName, CreationCollisionOption.GenerateUniqueName);
+                await FileIO.WriteLinesAsync(file, strs, Windows.Storage.Streams.UnicodeEncoding.Utf8);
+            }
             return;
         }
 
@@ -267,16 +278,28 @@ namespace Pavlo.DJIDAcquisition.VM
         /// </summary>
         public void StartReceivingAction()
         {
+            //indication of receiving is started
+            IsReceiving = true;
+
+            //clear all elements in the list
+            lock(recordListLock)
+            {
+                RecordList.Clear();
+            }
+
+            //events subscription
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
 
-            IsReceiving=true;
 
-            int id = 1;
-            DJIRecord record = new DJIRecord() { ID = id++, Description = "some event (main thread)", Date = System.DateTime.Now };
+            //Emulation of events
+
+            DJIRecord record = new DJIRecord() { ID = 0, Description = "starting", Date = System.DateTime.Now, Type = "fakeEvent" };
             RecordList.Add(record);
+            DJIRecord record2 = new DJIRecord() { ID = 1, Description = "some event (main thread)", Date = System.DateTime.Now };
+            RecordList.Add(record2);
 
             int tasksCount = 5;
-            int averDelay_ms = 1000;
+            int averDelay_ms = 200;
             
             Task[] tasks = new Task[tasksCount];
             for (int i = 0; i < tasks.Length; i++)
@@ -289,7 +312,7 @@ namespace Pavlo.DJIDAcquisition.VM
                     lock (recordListLock)
                     {
                         DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = $"event in a task", Date = System.DateTime.Now };
-                        //RecordList.Add(recordT);
+                        //RecordList.Add(recordT);  // <- should be in UI thread
                     }
                 } );
             }
@@ -306,7 +329,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ComponentHandingPage_VelocityChanged(object sender, Velocity3D? value)
         {
-            string tmpDescroption = $"{value.Value.x}, {value.Value.y}, {value.Value.z}. Total value={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}.";
+            string tmpDescroption = $"({value.Value.x}, {value.Value.y}, {value.Value.z}). Abs={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}.";
             DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "VelocityChanged" };
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
