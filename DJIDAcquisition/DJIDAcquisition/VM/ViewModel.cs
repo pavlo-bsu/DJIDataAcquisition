@@ -170,6 +170,10 @@ namespace Pavlo.DJIDAcquisition.VM
         {
             //unsubscribe from drone events
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged -= ComponentHandingPage_VelocityChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged -= ViewModel_AircraftLocationChanged;
+            DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged -= ViewModel_CameraConnectionChanged;
+
 
             //writing log to file
             try
@@ -289,6 +293,11 @@ namespace Pavlo.DJIDAcquisition.VM
 
             //events subscription
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged += ViewModel_AircraftLocationChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AreMotorsOnChanged += ViewModel_AreMotorsOnChanged;
+            //DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged += ViewModel_CameraConnectionChanged;
+
 
 
             //Emulation of events
@@ -327,15 +336,73 @@ namespace Pavlo.DJIDAcquisition.VM
             
         }
 
-        private async void ComponentHandingPage_VelocityChanged(object sender, Velocity3D? value)
+        private async void ViewModel_AreMotorsOnChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"({value.Value.x}, {value.Value.y}, {value.Value.z}). Abs={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}.";
-            DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "VelocityChanged" };
+            string tmpDescroption = $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 lock (recordListLock)
                 {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "AreMotorsOnChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_SatelliteCountChanged(object sender, IntMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "SatelliteCountChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_CameraConnectionChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"({value.Value.value}.";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "CameraConnectionChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_AircraftLocationChanged(object sender, LocationCoordinate2D? value)
+        {
+            string tmpDescroption = $"({value.Value.latitude}, {value.Value.longitude}).";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "AircraftLocationChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        
+
+        private async void ComponentHandingPage_VelocityChanged(object sender, Velocity3D? value)
+        {
+            string tmpDescroption = $"({value.Value.x}, {value.Value.y}, {value.Value.z}). Abs={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}.";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "VelocityChanged" };
                     RecordList.Add(recordT);
                 }
             });
