@@ -172,6 +172,23 @@ namespace Pavlo.DJIDAcquisition.VM
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged -= ComponentHandingPage_VelocityChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged -= ViewModel_AircraftLocationChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AreMotorsOnChanged -= ViewModel_AreMotorsOnChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSSignalLevelChanged -= ViewModel_GPSSignalLevelChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassHasErrorChanged -= ViewModel_CompassHasErrorChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ESCHasErrorChanged -= ViewModel_ESCHasErrorChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).HasNoEnoughForceChanged -= ViewModel_HasNoEnoughForceChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSModeFailureReasonChanged -= ViewModel_GPSModeFailureReasonChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassInstallErrorChanged -= ViewModel_CompassInstallErrorChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).WindWarningChanged -= ViewModel_WindWarningChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).IsMotorStuckChanged -= ViewModel_IsMotorStuckChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).FailsafeActionChanged -= ViewModel_FailsafeActionChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ConnectionChanged -= ViewModel_ConnectionChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemConnectedChanged -= ViewModel_AirSenseSystemConnectedChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemInformationChanged -= ViewModel_AirSenseSystemInformationChanged;
+            //RC
+            DJISDKManager.Instance.ComponentManager.GetRemoteControllerHandler(0, 0).ConnectionChanged -= ViewModel_RC_ConnectionChanged;
+
+            //Camera
             DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged -= ViewModel_CameraConnectionChanged;
 
 
@@ -292,11 +309,32 @@ namespace Pavlo.DJIDAcquisition.VM
             }
 
             //events subscription
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
+            //https://developer.dji.com/api-reference/windows-api/Components/ComponentManager.html
+            
+            //FlightController
+            //DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged += ViewModel_AircraftLocationChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AreMotorsOnChanged += ViewModel_AreMotorsOnChanged;
-            //DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged += ViewModel_CameraConnectionChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSSignalLevelChanged += ViewModel_GPSSignalLevelChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassHasErrorChanged += ViewModel_CompassHasErrorChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ESCHasErrorChanged += ViewModel_ESCHasErrorChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).HasNoEnoughForceChanged += ViewModel_HasNoEnoughForceChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSModeFailureReasonChanged += ViewModel_GPSModeFailureReasonChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassInstallErrorChanged += ViewModel_CompassInstallErrorChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).WindWarningChanged += ViewModel_WindWarningChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).IsMotorStuckChanged += ViewModel_IsMotorStuckChanged;
+            //changes of the FailSafe action (gohome, landing, hover etc) for when the connection between remote controller and aircraft is lost.
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).FailsafeActionChanged += ViewModel_FailsafeActionChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ConnectionChanged += ViewModel_ConnectionChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemConnectedChanged += ViewModel_AirSenseSystemConnectedChanged;
+            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemInformationChanged += ViewModel_AirSenseSystemInformationChanged;
+            
+            //RC
+            DJISDKManager.Instance.ComponentManager.GetRemoteControllerHandler(0, 0).ConnectionChanged += ViewModel_RC_ConnectionChanged;
+            
+            //Camera
+            DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged += ViewModel_CameraConnectionChanged;
 
 
 
@@ -334,6 +372,189 @@ namespace Pavlo.DJIDAcquisition.VM
             DJIRecord recordEnd = new DJIRecord() { ID = RecordList.Count, Description = "some event (main thread)", Date = System.DateTime.Now };
             RecordList.Add(recordEnd);
             
+        }
+
+        private async void ViewModel_RC_ConnectionChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "RC_ConnectionChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_AirSenseSystemInformationChanged(object sender, AirSenseSystemInformation? value)
+        {
+            string tmpDescroption = $"warningLevel is {value.Value.warningLevel}.There are info in property 'airplaneStates'";
+            //if necessary, add info from value.Value.airplaneStates
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "AirSenseSystemInformationChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_AirSenseSystemConnectedChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "AirSenseSystemConnectedChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_ConnectionChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "FlightController: ConnectionChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_FailsafeActionChanged(object sender, FCFailsafeActionMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "FailsafeActionChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_IsMotorStuckChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "IsMotorStuckChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_WindWarningChanged(object sender, FCWindWarningMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "CompassInstallErrorChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_CompassInstallErrorChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "CompassInstallErrorChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_GPSModeFailureReasonChanged(object sender, FCGPSModeFailureReasonMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "GPSModeFailureReasonChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_HasNoEnoughForceChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "HasNoEnoughForceChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_ESCHasErrorChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "ESCHasErrorChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_CompassHasErrorChanged(object sender, BoolMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "CompassHasErrorChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
+        }
+
+        private async void ViewModel_GPSSignalLevelChanged(object sender, FCGPSSignalLevelMsg? value)
+        {
+            string tmpDescroption = $"{value.Value.value}";
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                lock (recordListLock)
+                {
+                    DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = tmpDescroption, Date = System.DateTime.Now, Type = "GPSSignalLevelChanged" };
+                    RecordList.Add(recordT);
+                }
+            });
         }
 
         private async void ViewModel_AreMotorsOnChanged(object sender, BoolMsg? value)
