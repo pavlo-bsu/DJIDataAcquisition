@@ -335,48 +335,11 @@ namespace Pavlo.DJIDAcquisition.VM
             
             //Camera
             DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged += ViewModel_CameraConnectionChanged;
-
-
-
-            //Emulation of events
-
-            DJIRecord record = new DJIRecord() { ID = 0, Description = "starting", Date = System.DateTime.Now, Type = "fakeEvent" };
-            RecordList.Add(record);
-            DJIRecord record2 = new DJIRecord() { ID = 1, Description = "some event (main thread)", Date = System.DateTime.Now };
-            RecordList.Add(record2);
-
-            int tasksCount = 5;
-            int averDelay_ms = 200;
-            
-            Task[] tasks = new Task[tasksCount];
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                tasks[i] = new Task(()=>
-                {
-                    //payload
-                    Thread.Sleep(averDelay_ms);
-
-                    lock (recordListLock)
-                    {
-                        DJIRecord recordT = new DJIRecord() { ID = RecordList.Count, Description = $"event in a task", Date = System.DateTime.Now };
-                        //RecordList.Add(recordT);  // <- should be in UI thread
-                    }
-                } );
-            }
-
-            for (int i = 0; i < tasks.Length; i++)
-                tasks[i].Start();
-
-            Task.WaitAll(tasks);
-
-            DJIRecord recordEnd = new DJIRecord() { ID = RecordList.Count, Description = "some event (main thread)", Date = System.DateTime.Now };
-            RecordList.Add(recordEnd);
-            
         }
 
         private async void ViewModel_RC_ConnectionChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -390,7 +353,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_AirSenseSystemInformationChanged(object sender, AirSenseSystemInformation? value)
         {
-            string tmpDescroption = $"warningLevel is {value.Value.warningLevel}.There are info in property 'airplaneStates'";
+            string tmpDescroption = value == null ? "null" : $"warningLevel is {value.Value.warningLevel}.There are info in property 'airplaneStates'";
             //if necessary, add info from value.Value.airplaneStates
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -405,7 +368,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_AirSenseSystemConnectedChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -419,7 +382,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_ConnectionChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -433,7 +396,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_FailsafeActionChanged(object sender, FCFailsafeActionMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -447,7 +410,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_IsMotorStuckChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -461,7 +424,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_WindWarningChanged(object sender, FCWindWarningMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -475,7 +438,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_CompassInstallErrorChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -489,7 +452,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_GPSModeFailureReasonChanged(object sender, FCGPSModeFailureReasonMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -503,7 +466,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_HasNoEnoughForceChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -517,7 +480,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_ESCHasErrorChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -531,7 +494,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_CompassHasErrorChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value==null?"null":$"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -545,7 +508,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_GPSSignalLevelChanged(object sender, FCGPSSignalLevelMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -559,7 +522,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_AreMotorsOnChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -573,7 +536,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_SatelliteCountChanged(object sender, IntMsg? value)
         {
-            string tmpDescroption = $"{value.Value.value}";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -587,7 +550,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_CameraConnectionChanged(object sender, BoolMsg? value)
         {
-            string tmpDescroption = $"({value.Value.value}.";
+            string tmpDescroption = value == null ? "null" : $"{value.Value.value}";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -601,7 +564,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ViewModel_AircraftLocationChanged(object sender, LocationCoordinate2D? value)
         {
-            string tmpDescroption = $"({value.Value.latitude}, {value.Value.longitude}).";
+            string tmpDescroption = value == null ? "null" : $"({value.Value.latitude}, {value.Value.longitude}).";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -617,7 +580,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         private async void ComponentHandingPage_VelocityChanged(object sender, Velocity3D? value)
         {
-            string tmpDescroption = $"({value.Value.x}, {value.Value.y}, {value.Value.z}). Abs={Math.Sqrt(value.Value.x* value.Value.x+ value.Value.y* value.Value.y + value.Value.z* value.Value.z)}.";
+            string tmpDescroption = value == null ? "null" : $"({value.Value.x}, {value.Value.y}, {value.Value.z}). Abs={Math.Sqrt(value.Value.x * value.Value.x + value.Value.y * value.Value.y + value.Value.z * value.Value.z)}.";
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
