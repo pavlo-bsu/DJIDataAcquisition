@@ -85,11 +85,13 @@ namespace Pavlo.DJIDAcquisition.VM
             }
         }
 
+        //Command is removed. Action added to the constructor.
+        /*
         public ConnectCommand ConnectCmd
         {
             get;
             private set;
-        }
+        }*/
 
         public StartReceivingCommand StartReceivingCmd
         {
@@ -119,7 +121,7 @@ namespace Pavlo.DJIDAcquisition.VM
 
         public ViewModel ()
         {
-            ConnectCmd = new ConnectCommand(this);
+            //ConnectCmd = new ConnectCommand(this);
             StartReceivingCmd = new StartReceivingCommand(this);
             StopReceivingCommand = new StopReceivingCommand(this);
 
@@ -131,6 +133,8 @@ namespace Pavlo.DJIDAcquisition.VM
             // https://stackoverflow.com/questions/2091988/how-do-i-update-an-observablecollection-via-a-worker-thread
             // https://stackoverflow.com/questions/21720638/using-bindingoperations-enablecollectionsynchronization
             recordListLock = new object();
+
+            ConnectCmdAction();
         }
 
         /// <summary>
@@ -168,29 +172,33 @@ namespace Pavlo.DJIDAcquisition.VM
         /// </summary>
         public void StopRecievingAction()
         {
-            //unsubscribe from drone events
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged -= ComponentHandingPage_VelocityChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged -= ViewModel_AircraftLocationChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AreMotorsOnChanged -= ViewModel_AreMotorsOnChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSSignalLevelChanged -= ViewModel_GPSSignalLevelChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassHasErrorChanged -= ViewModel_CompassHasErrorChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ESCHasErrorChanged -= ViewModel_ESCHasErrorChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).HasNoEnoughForceChanged -= ViewModel_HasNoEnoughForceChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSModeFailureReasonChanged -= ViewModel_GPSModeFailureReasonChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassInstallErrorChanged -= ViewModel_CompassInstallErrorChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).WindWarningChanged -= ViewModel_WindWarningChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).IsMotorStuckChanged -= ViewModel_IsMotorStuckChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).FailsafeActionChanged -= ViewModel_FailsafeActionChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ConnectionChanged -= ViewModel_ConnectionChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemConnectedChanged -= ViewModel_AirSenseSystemConnectedChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemInformationChanged -= ViewModel_AirSenseSystemInformationChanged;
-            //RC
-            DJISDKManager.Instance.ComponentManager.GetRemoteControllerHandler(0, 0).ConnectionChanged -= ViewModel_RC_ConnectionChanged;
+            try
+            {
+                //unsubscribe from drone events
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged -= ComponentHandingPage_VelocityChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged -= ViewModel_AircraftLocationChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AreMotorsOnChanged -= ViewModel_AreMotorsOnChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSSignalLevelChanged -= ViewModel_GPSSignalLevelChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassHasErrorChanged -= ViewModel_CompassHasErrorChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ESCHasErrorChanged -= ViewModel_ESCHasErrorChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).HasNoEnoughForceChanged -= ViewModel_HasNoEnoughForceChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSModeFailureReasonChanged -= ViewModel_GPSModeFailureReasonChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).CompassInstallErrorChanged -= ViewModel_CompassInstallErrorChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).WindWarningChanged -= ViewModel_WindWarningChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).IsMotorStuckChanged -= ViewModel_IsMotorStuckChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).FailsafeActionChanged -= ViewModel_FailsafeActionChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).ConnectionChanged -= ViewModel_ConnectionChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemConnectedChanged -= ViewModel_AirSenseSystemConnectedChanged;
+                DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AirSenseSystemInformationChanged -= ViewModel_AirSenseSystemInformationChanged;
+                //RC
+                DJISDKManager.Instance.ComponentManager.GetRemoteControllerHandler(0, 0).ConnectionChanged -= ViewModel_RC_ConnectionChanged;
 
-            //Camera
-            DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged -= ViewModel_CameraConnectionChanged;
-
+                //Camera
+                DJISDKManager.Instance.ComponentManager.GetCameraHandler(0, 0).ConnectionChanged -= ViewModel_CameraConnectionChanged;
+            }
+            catch (Exception ex)
+            { }
 
             //writing log to file
             try
@@ -313,7 +321,7 @@ namespace Pavlo.DJIDAcquisition.VM
             
             //FlightController
             //DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).VelocityChanged += ComponentHandingPage_VelocityChanged;
-            DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged += ViewModel_AircraftLocationChanged;
+            //DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AircraftLocationChanged += ViewModel_AircraftLocationChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).SatelliteCountChanged += ViewModel_SatelliteCountChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).AreMotorsOnChanged += ViewModel_AreMotorsOnChanged;
             DJISDKManager.Instance.ComponentManager.GetFlightControllerHandler(0, 0).GPSSignalLevelChanged += ViewModel_GPSSignalLevelChanged;
