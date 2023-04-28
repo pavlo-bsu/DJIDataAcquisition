@@ -8,34 +8,25 @@
     xmlns:vm="using:Pavlo.DJIDAcquisition.VM"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    >
     <Page.DataContext>
         <vm:ViewModel/>
     </Page.DataContext>
-    <Border BorderBrush="Green" BorderThickness="3">
-        <StackPanel Orientation="Vertical">
-            <Border BorderBrush="Red" BorderThickness="3">
-                <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="150">
-                    <Button x:Name="btnConnect" Command="{Binding Path=ConnectCmd}">Connect</Button>
-                    <TextBlock x:Name="lblConnectionStatus" Text="{Binding Path=MSG, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
-                </VariableSizedWrapGrid>
-            </Border>
-            <Border BorderBrush="Blue" BorderThickness="3">
-                <VariableSizedWrapGrid Orientation="Horizontal">
-                    <Button x:Name="btnStartRecieving" Command="{Binding Path=StartReceivingCmd}">Start recieving</Button>
-                    <Button x:Name="btnStopRecieving" Command="{Binding Path=StopReceivingCommand}">Stop recieving</Button>
-                </VariableSizedWrapGrid>
-            </Border>
-            <Border BorderBrush="Yellow" BorderThickness="3">
-            <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=RecordList}" MaxHeight="400">
-                <controls:DataGrid.Columns>
-                    <controls:DataGridTextColumn Header="#" Binding="{Binding ID}"/>
-                    <controls:DataGridTextColumn Header="Time" Binding="{Binding Date}"/>
-                    <controls:DataGridTextColumn Header="Type" Binding="{Binding Type}"/>
-                    <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}"/>
-                </controls:DataGrid.Columns>
-            </controls:DataGrid>
-            </Border>
-        </StackPanel>
-    </Border>
+    <StackPanel Orientation="Vertical" Margin="5">
+        <!--<Button x:Name="btnConnect" Command="{Binding Path=ConnectCmd}">Connect</Button>-->
+        <TextBlock x:Name="lblConnectionStatus" Text="{Binding Path=MSG, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 3 0 3"></TextBlock>
+        <VariableSizedWrapGrid Orientation="Horizontal">
+            <Button x:Name="btnStartRecieving" Command="{Binding Path=StartReceivingCmd}" Margin="0 0 10 0">Start recieving</Button>
+            <Button x:Name="btnStopRecieving" Command="{Binding Path=StopReceivingCommand}">Stop recieving</Button>
+        </VariableSizedWrapGrid>
+        <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=RecordList}" Height="400" Margin="0 3 0 0">
+            <controls:DataGrid.Columns>
+                <controls:DataGridTextColumn Header="#" Binding="{Binding ID}"/>
+                <controls:DataGridTextColumn Header="Time" Binding="{Binding Date}"/>
+                <controls:DataGridTextColumn Header="Type" Binding="{Binding Type}"/>
+                <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}"/>
+            </controls:DataGrid.Columns>
+        </controls:DataGrid>
+    </StackPanel>
 </Page>
