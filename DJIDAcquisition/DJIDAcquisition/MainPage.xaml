@@ -17,10 +17,10 @@
         <!--<Button x:Name="btnConnect" Command="{Binding Path=ConnectCmd}">Connect</Button>-->
         <TextBlock x:Name="lblConnectionStatus" Text="{Binding Path=MSG, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 3 0 3"></TextBlock>
         <VariableSizedWrapGrid Orientation="Horizontal">
-            <Button x:Name="btnStartRecieving" Command="{Binding Path=StartReceivingCmd}" Margin="0 0 10 0">Start recieving</Button>
-            <Button x:Name="btnStopRecieving" Command="{Binding Path=StopReceivingCommand}">Stop recieving</Button>
+            <Button x:Name="btnStartRecieving" Command="{Binding Path=StartReceivingCmd}" Margin="0 0 10 0">Start receiving</Button>
+            <Button x:Name="btnStopRecieving" Command="{Binding Path=StopReceivingCommand}">Stop receiving</Button>
         </VariableSizedWrapGrid>
-        <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=RecordList}" Height="400" Margin="0 3 0 0">
+        <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=RecordList}" IsReadOnly="True" MaxHeight="800" Margin="0 3 0 0">
             <controls:DataGrid.Columns>
                 <controls:DataGridTextColumn Header="#" Binding="{Binding ID}"/>
                 <controls:DataGridTextColumn Header="Time" Binding="{Binding Date}"/>
